@@ -12,7 +12,7 @@ Loading, installing, settings, starting, staying up.
 | Addon | Version | What it does | Needs |
 |---|---|---|---|
 | [core](addons/core) | 1.1.0 | Loads addons with their settings from addon.lua, /home/addons.cfg and the program | - |
-| [installer](addons/installer) | 1.0.0 | Installs, updates and removes programs in /home/<id>/, keeps their config, update-all for all | core@1.1, config@1, autostart@1 |
+| [installer](addons/installer) | 1.0.0 | Installs, updates and removes programs in /home/<id>/, keeps their config, update-all for all | core 1.1.0, config 1.0.0, autostart 1.0.0 |
 | [config](addons/config) | 1.0.0 | Program settings: a schema, every mistake listed by its path, edit in place, merge on update | - |
 | [autostart](addons/autostart) | 1.0.0 | Starts a program when the computer boots, and wakes the computer by redstone after a power loss | - |
 | [recovery](addons/recovery) | 1.2.0 | Restarts a failing program after a pause, cleans up its listeners, safe state after minutes of errors | - |
@@ -26,7 +26,7 @@ The neon look, drawing it, time and the event log on the screen.
 | [neon-ui](addons/neon-ui) | 1.0.0 | Neon style building blocks: canvas, cards, bars with a slider, rows, header, footer, log | - |
 | [screen](addons/screen) | 1.0.0 | Shows frames of coloured lines without flicker, fits the resolution to the screen's shape | - |
 | [clock](addons/clock) | 1.1.0 | Real time with a time zone (not game time), cheap to call often | - |
-| [event-log](addons/event-log) | 1.0.0 | Log for the screen (coloured, newest first, repeats folded) and a file that rotates | core@1.1, clock@1 |
+| [event-log](addons/event-log) | 1.0.0 | Log for the screen (coloured, newest first, repeats folded) and a file that rotates | core 1.1.0, clock 1.1.0 |
 
 ### Machines
 
@@ -44,11 +44,11 @@ Stock, crafting and storage of the ME network.
 | Addon | Version | What it does | Needs |
 |---|---|---|---|
 | [ae2](addons/ae2) | 1.0.0 | ME network: find it, read items and fluids by one key, power, CPUs, cached craftables, requests | - |
-| [stock-watch](addons/stock-watch) | 1.0.0 | Watches items and fluids in the ME network against a minimum and maximum, logs when one runs low | ae2@1 |
-| [cpu-monitor](addons/cpu-monitor) | 1.0.0 | Crafting CPUs of the ME network: busy or free, what each crafts and for how long, logs jobs | ae2@1 |
-| [craft-history](addons/craft-history) | 1.0.0 | Keeps finished crafting jobs (from cpu-monitor) in a file: recent jobs and totals per item | cpu-monitor@1, clock@1.1 |
+| [stock-watch](addons/stock-watch) | 1.0.0 | Watches items and fluids in the ME network against a minimum and maximum, logs when one runs low | ae2 1.0.0 |
+| [cpu-monitor](addons/cpu-monitor) | 1.0.0 | Crafting CPUs of the ME network: busy or free, what each crafts and for how long, logs jobs | ae2 1.0.0 |
+| [craft-history](addons/craft-history) | 1.0.0 | Keeps finished crafting jobs (from cpu-monitor) in a file: recent jobs and totals per item | cpu-monitor 1.0.0, clock 1.1.0 |
 | [me-capacity](addons/me-capacity) | 1.0.0 | Free space on the storage cells in ME Drives (bytes and types), read by transposers next to the drives | - |
-| [ore-yield](addons/ore-yield) | 1.0.0 | How fast items come into the ME network per hour, e.g. ores from miners, void miners or a meteor | ae2@1, clock@1.1 |
+| [ore-yield](addons/ore-yield) | 1.0.0 | How fast items come into the ME network per hour, e.g. ores from miners, void miners or a meteor | ae2 1.0.0, clock 1.1.0 |
 <!-- catalog:end -->
 
 Written by `python3 tools/catalog.py` from each `addon.lua` and [groups.lua](groups.lua).

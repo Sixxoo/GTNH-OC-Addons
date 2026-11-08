@@ -44,7 +44,12 @@ def catalog(repo):
         rows = ["| Addon | Version | What it does | Needs |", "|---|---|---|---|"]
         for name in names:
             info = addons[name]
-            needs = ", ".join(info.get("requires") or []) or "-"
+            needs = []
+            for need in info.get("requires") or []:
+                other = need.split("@", 1)[0]
+                version = addons.get(other, {}).get("version")
+                needs.append(f"{other} {version}" if version else other)
+            needs = ", ".join(needs) or "-"
             rows.append(f"| [{name}](addons/{name}) | {info.get('version', '?')} | {info.get('description', '')} | {needs} |")
         parts.append(title + "\n\n" + "\n".join(rows))
     return "\n\n".join(parts)
