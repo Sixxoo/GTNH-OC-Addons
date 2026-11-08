@@ -103,6 +103,18 @@ t.test("step can ask for a restart: no pause, no error", function ()
   t.equal(oc.now() - began, 0, "no pause")
 end)
 
+t.test("waiting gets every line of the error, without the stack traceback", function ()
+  local seen = nil
+  recovery.run({
+    start = function () error("config.lua has mistakes:\n  mode: is \"fast\"", 0) end,
+    step = function () return true end,
+    stop = function () end,
+    safe = function () end,
+    waiting = function (problem) seen = problem return "quit" end,
+  })
+  t.equal(seen, 'config.lua has mistakes:\n  mode: is "fast"')
+end)
+
 t.test("waiting can quit before the restart", function ()
   local result = recovery.run({
     start = function () error("x") end,

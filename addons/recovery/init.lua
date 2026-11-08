@@ -15,8 +15,9 @@ local function traceback(err)
   return debug.traceback(tostring(err), 2)
 end
 
-local function firstLine(text)
-  return (tostring(text):match("^[^\n]*"))
+---The error without its stack traceback, which only helps when reading the code
+local function withoutTraceback(text)
+  return (tostring(text):gsub("\nstack traceback:.*$", ""))
 end
 
 ---Report an error of the current run from anywhere: the run stops and starts again
@@ -76,7 +77,8 @@ end
 ---  step(runNumber)   one pass of the main loop; return false to quit, "restart" to start again at once
 ---  stop(reason)      always called when a run ends: "quit", "restart", or the error
 ---  safe(problem)     after giving up: put machines in a safe state
----  waiting(problem, secondsLeft, attempt, giveUpIn)  called every second before a restart; return "quit" to stop
+---  waiting(problem, secondsLeft, attempt, giveUpIn)  called every second before a restart, with the error
+---                    without its stack traceback; return "quit" to stop
 ---  started(runNumber, attempt)  optional, after a run started again after an error
 ---@return string result "quit" or "gave up"
 ---@return string|nil problem The last error when it gave up
@@ -149,7 +151,7 @@ function M.run(handlers)
       local answer = nil
 
       if handlers.waiting then
-        local waitOk, result = pcall(handlers.waiting, firstLine(failure), left, attempt, math.max(0, giveUpAt - computer.uptime()))
+        local waitOk, result = pcall(handlers.waiting, withoutTraceback(failure), left, attempt, math.max(0, giveUpAt - computer.uptime()))
         answer = waitOk and result or nil
       end
 

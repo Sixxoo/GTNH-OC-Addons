@@ -53,5 +53,6 @@ None.
 
 ## Changelog
 
+- 1.2.0 (2026-11-08): `waiting` gets the whole error (all its lines, without the stack traceback), not only its first line.
 - 1.1.0 (2026-11-08): `step` can return `"restart"`: the run stops and starts again at once, without counting as an error.
 - 1.0.0 (2026-11-08): first version, from Water Line Control's program controller.
