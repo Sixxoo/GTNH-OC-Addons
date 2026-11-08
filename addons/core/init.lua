@@ -129,7 +129,10 @@ function M.settings(name, overrides)
   return settings
 end
 
----Load an addon and give it its settings
+local setUp = {}
+
+---Load an addon and give it its settings. An addon that is already loaded comes back as it is,
+---unless overrides are given: then it is set up again with them
 ---@param name string
 ---@param overrides? table Settings the program sets itself
 ---@return table module
@@ -140,11 +143,23 @@ function M.load(name, overrides)
     error("[core] addon "..name.." did not return a table")
   end
 
+  if setUp[name] == module and overrides == nil then
+    return module
+  end
+
   if type(module.setup) == "function" then
     module.setup(M.settings(name, overrides))
   end
 
+  setUp[name] = module
   return module
+end
+
+---Set an addon up again with the settings from addons.cfg, after it was edited
+---@param name string
+function M.reload(name)
+  setUp[name] = nil
+  return M.load(name)
 end
 
 return M

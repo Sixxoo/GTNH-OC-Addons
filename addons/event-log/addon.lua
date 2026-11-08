@@ -2,7 +2,7 @@ return {
   name = "event-log",
   version = "1.0.0",
   description = "Log for the screen (coloured, newest first, repeats folded) and a file that rotates",
-  requires = {"clock@1"},
+  requires = {"core@1.1", "clock@1"},
   components = {},
   settings = {
     screenLevel = {default = "info", description = "Lowest level shown on the screen: debug, info, warning, error"},

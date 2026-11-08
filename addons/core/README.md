@@ -15,7 +15,8 @@ Settings are merged in this order, later wins: defaults in the addon's `addon.lu
 
 | Function | What it does |
 |---|---|
-| `load(name, overrides?)` | `require`s the addon, calls its `setup(settings)`, returns it |
+| `load(name, overrides?)` | `require`s the addon, calls its `setup(settings)`, returns it. Already loaded and no overrides: returned as it is |
+| `reload(name)` | Sets the addon up again from `/home/addons.cfg`, after it was edited |
 | `settings(name, overrides?)` | The merged settings, without loading the addon |
 | `info(name)` | The addon's `addon.lua` table |
 | `sharedConfig()` | The table in `/home/addons.cfg` (empty if the file is missing) |
@@ -34,4 +35,5 @@ None.
 
 ## Changelog
 
+- 1.1.0 (2026-11-08): `load` without overrides returns an addon that is already set up, so one addon loading another doesn't reset its settings; `reload`.
 - 1.0.0 (2026-11-08): first version.

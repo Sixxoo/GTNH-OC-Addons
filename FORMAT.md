@@ -15,7 +15,8 @@ addons/<name>/
 ```
 
 - `<name>` is lowercase with dashes: `neon-ui`, `gt-machine`. Folders starting with `_` (like `_template`) are not addons.
-- In a program the addon lands in `/home/addons/<name>/`, so code loads it with `require("addons.<name>")`.
+- A program lives in `/home/<id>/` and its addons in `/home/<id>/addons/<name>/`; the program runs from its folder, so
+  code loads an addon with `require("addons.<name>")`. Each program has its own copy of the addons it was tested with.
 
 ## addon.lua
 
@@ -42,7 +43,7 @@ return {
 | `description` | yes | One line in English, shown in the catalog |
 | `requires` | no | Addons it needs, by major version (`"clock@1"`) or a lowest minor (`"clock@1.2"`) |
 | `components` | no | OC component types it needs (`"gpu"`, `"internet"`, `"me_interface"`, ...) |
-| `settings` | no | Settings in `/home/addons.cfg`, each with a `default` and a `description` |
+| `settings` | no | Settings in `/home/addons.cfg`, each with a `default`, a `description` and optionally `ask`: a question the installer asks once when the setting is not in `addons.cfg` yet |
 
 ## init.lua
 

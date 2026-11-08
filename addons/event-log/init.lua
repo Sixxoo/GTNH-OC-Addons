@@ -11,15 +11,8 @@ function M.setup(settings)
   M.settings = settings
 end
 
----The clock addon, set up once with its settings if the program did not load it itself
 local function clock()
-  local module = require("addons.clock")
-
-  if module.settings == nil then
-    require("addons.core").load("clock")
-  end
-
-  return module
+  return require("addons.core").load("clock")
 end
 
 local function text(...)

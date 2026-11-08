@@ -690,6 +690,31 @@ function filesystem.size(path)
   return size
 end
 
+---Names in a folder, folders with a trailing "/", like OpenOS
+function filesystem.list(path)
+  local names = {}
+  local listing = os.tmpname()
+  os.execute('ls -p "'..path..'" > "'..listing..'" 2>/dev/null')
+  local file = io.open(listing, "r")
+
+  if file ~= nil then
+    for name in file:lines() do
+      names[#names + 1] = name
+    end
+
+    file:close()
+  end
+
+  os.remove(listing)
+
+  local index = 0
+
+  return function ()
+    index = index + 1
+    return names[index]
+  end
+end
+
 function filesystem.lastModified()
   return realClockMs
 end
