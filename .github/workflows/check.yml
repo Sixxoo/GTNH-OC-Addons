@@ -1,9 +1,13 @@
-name: Check
+name: Check and release
 
-# Every push: every addon follows FORMAT.md and every test passes
+# Every push: every addon follows FORMAT.md, the catalog is up to date and every test passes.
+# On main, then: every addon version without a release gets one (tag <name>-v<version>).
 on:
   push:
   pull_request:
+
+permissions:
+  contents: write
 
 jobs:
   check:
@@ -17,6 +21,8 @@ jobs:
       run: pip install lupa pillow
     - name: Check addons
       run: python3 tools/check_addons.py
+    - name: Check the catalog in README.md
+      run: python3 tools/catalog.py --check
     - name: Run tests
       run: python3 testkit/run.py
     - name: Keep screen snapshots
@@ -26,3 +32,19 @@ jobs:
         name: snapshots
         path: testkit/out/
         if-no-files-found: ignore
+
+  release:
+    needs: check
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+    - name: Install lupa
+      run: pip install lupa
+    - name: Release new addon versions
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: python3 tools/release.py

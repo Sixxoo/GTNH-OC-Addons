@@ -40,6 +40,30 @@ def to_python(value):
     return items if items else []
 
 
+def read_addon(folder):
+    """addon.lua of one addon folder as a dict, or (None, problem)"""
+    name = os.path.basename(folder.rstrip("/"))
+    result = read_table(open(os.path.join(folder, "addon.lua"), encoding="utf-8").read(), f"addons/{name}/addon.lua")
+    value, error = result if isinstance(result, tuple) else (result, None)
+    if value is None:
+        return None, error
+    info = to_python(value)
+    return (info if isinstance(info, dict) else {}), None
+
+
+def read_addons(repo):
+    """name -> addon.lua dict, for every addon folder (not starting with _) that has a readable addon.lua"""
+    root = os.path.join(repo, "addons")
+    infos = {}
+    for name in sorted(os.listdir(root)):
+        folder = os.path.join(root, name)
+        if os.path.isdir(folder) and not name.startswith("_") and os.path.isfile(os.path.join(folder, "addon.lua")):
+            info, _ = read_addon(folder)
+            if info is not None:
+                infos[name] = info
+    return infos
+
+
 def check(repo):
     problems = []
     root = os.path.join(repo, "addons")
@@ -71,14 +95,10 @@ def check(repo):
         path = os.path.join(folder, "addon.lua")
         if not os.path.isfile(path):
             continue
-        result = read_table(open(path, encoding="utf-8").read(), f"addons/{name}/addon.lua")
-        value, error = result if isinstance(result, tuple) else (result, None)
-        if value is None:
+        info, error = read_addon(folder)
+        if info is None:
             problem(f"addon.lua: {error}")
             continue
-        info = to_python(value)
-        if isinstance(info, list):
-            info = {}
         infos[name] = info
 
         for key in info:

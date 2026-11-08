@@ -122,6 +122,13 @@ a program uses the first time, and later only for new ones.
 Sections, in this order: what it does (a sentence or two), **Usage** (a short example), **Settings** (table of
 `settings`), **Components**, **Changelog** (newest first: version, date, one line per change).
 
+## Releases
+
+Raise `version` in `addon.lua`, add the changelog line to the addon's README and push to `main`. When the checks and
+tests pass, GitHub Actions releases it as `<name>-v<version>` with `<name>-<version>.tar` (the folder without its
+tests). Every version stays released, nothing is overwritten. Run `python3 tools/catalog.py` before pushing, so the
+catalog in README.md shows the new version (a push with an out-of-date catalog fails the check).
+
 ## Tests
 
 `addons/<name>/tests/*_test.lua`, run in a fake OpenOS by `python3 testkit/run.py` (see [testkit](testkit/README.md)).

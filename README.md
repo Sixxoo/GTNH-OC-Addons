@@ -4,9 +4,13 @@ Shared parts for my OpenComputers programs in GTNH 2.9. Each program picks the a
 
 ## Addons
 
-| Addon | Version | What it does |
-|---|---|---|
-| [core](addons/core) | 1.0.0 | Loads addons and their settings |
+<!-- catalog:start -->
+| Addon | Version | What it does | Needs |
+|---|---|---|---|
+| [core](addons/core) | 1.0.0 | Loads addons with their settings from addon.lua, /home/addons.cfg and the program | - |
+<!-- catalog:end -->
+
+Written by `python3 tools/catalog.py` from each `addon.lua`.
 
 ## New addon
 
