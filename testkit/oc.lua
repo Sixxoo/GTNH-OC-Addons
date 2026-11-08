@@ -518,6 +518,27 @@ function oc.transposer(tanks, items, address)
 
       return true, moved
     end,
+    getAllStacks = function (side)
+      if items[side] == nil then
+        return nil
+      end
+
+      return {getAll = function ()
+        local all = {}
+
+        for slot = 0, 26 do
+          all[slot] = {}
+        end
+
+        for _, stack in ipairs(items[side]) do
+          if (stack.size or 0) > 0 then
+            all[stack.slot - 1] = {label = stack.label, size = stack.size, name = stack.name or stack.label}
+          end
+        end
+
+        return all
+      end}
+    end,
     getInventorySize = function (side)
       return items[side] and 27 or nil
     end,
