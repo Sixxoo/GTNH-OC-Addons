@@ -122,7 +122,12 @@ a program uses the first time, and later only for new ones.
 Sections, in this order: what it does (a sentence or two), **Usage** (a short example), **Settings** (table of
 `settings`), **Components**, **Changelog** (newest first: version, date, one line per change).
 
+## Tests
+
+`addons/<name>/tests/*_test.lua`, run in a fake OpenOS by `python3 testkit/run.py` (see [testkit](testkit/README.md)).
+Screens drawn in tests can be saved as pictures with `t.snapshot`.
+
 ## Checks
 
 `tools/check_addons.py` checks every addon: the fields of `addon.lua`, that `requires` point at existing addons and
-versions, no loops between addons, and that the Lua files compile. It runs on every push.
+versions, no loops between addons, and that the Lua files compile. It runs on every push, with the tests.
