@@ -89,6 +89,20 @@ t.test("a run that worked for a while starts a fresh count", function ()
   t.equal(runs, 6)
 end)
 
+t.test("step can ask for a restart: no pause, no error", function ()
+  local starts, stops = 0, {}
+  local began = oc.now()
+  local result = recovery.run({
+    start = function () starts = starts + 1 end,
+    step = function () if starts == 1 then return "restart" end return false end,
+    stop = function (reason) stops[#stops + 1] = reason end,
+  })
+  t.equal(result, "quit")
+  t.equal(starts, 2)
+  t.equal(stops[1], "restart")
+  t.equal(oc.now() - began, 0, "no pause")
+end)
+
 t.test("waiting can quit before the restart", function ()
   local result = recovery.run({
     start = function () error("x") end,

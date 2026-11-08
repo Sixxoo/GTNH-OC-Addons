@@ -73,8 +73,8 @@ end
 ---Run a program with recovery
 ---@param handlers table
 ---  start(runNumber)  set up the run; listeners and timers through recovery.listen / recovery.timer
----  step(runNumber)   one pass of the main loop; return false to quit
----  stop(reason)      always called when a run ends: "quit", or the error
+---  step(runNumber)   one pass of the main loop; return false to quit, "restart" to start again at once
+---  stop(reason)      always called when a run ends: "quit", "restart", or the error
 ---  safe(problem)     after giving up: put machines in a safe state
 ---  waiting(problem, secondsLeft, attempt, giveUpIn)  called every second before a restart; return "quit" to stop
 ---  started(runNumber, attempt)  optional, after a run started again after an error
@@ -108,7 +108,17 @@ function M.run(handlers)
           run = run + 1
           pcall(handlers.stop, "quit")
           return "quit"
+        elseif result == "restart" and problem == nil then
+          -- Asked to start again (new settings): no error, no pause
+          problem = "restart"
         end
+      end
+
+      if problem == "restart" then
+        cleanUp()
+        run = run + 1
+        pcall(handlers.stop, "restart")
+        goto continue
       end
     else
       M.fail(err)
@@ -150,6 +160,8 @@ function M.run(handlers)
 
       os.sleep(1)
     end
+
+    ::continue::
   end
 end
 

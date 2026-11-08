@@ -20,7 +20,7 @@ local result, problem = recovery.run({
   step = function ()
     controlMachines()
     os.sleep(1)
-    return not quitPressed                       -- false ends the program
+    return not quitPressed                       -- false ends the program, "restart" starts again at once
   end,
   stop = function (reason) end,                  -- every run's end: "quit" or the error
   safe = function (problem) gt.allow(plant, false) end,
@@ -53,4 +53,5 @@ None.
 
 ## Changelog
 
+- 1.1.0 (2026-11-08): `step` can return `"restart"`: the run stops and starts again at once, without counting as an error.
 - 1.0.0 (2026-11-08): first version, from Water Line Control's program controller.

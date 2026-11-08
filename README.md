@@ -15,7 +15,7 @@ Loading, installing, settings, starting, staying up.
 | [installer](addons/installer) | 1.0.0 | Installs, updates and removes programs in /home/<id>/, keeps their config, update-all for all | core@1.1, config@1, autostart@1 |
 | [config](addons/config) | 1.0.0 | Program settings: a schema, every mistake listed by its path, edit in place, merge on update | - |
 | [autostart](addons/autostart) | 1.0.0 | Starts a program when the computer boots, and wakes the computer by redstone after a power loss | - |
-| [recovery](addons/recovery) | 1.0.0 | Restarts a failing program after a pause, cleans up its listeners, safe state after minutes of errors | - |
+| [recovery](addons/recovery) | 1.1.0 | Restarts a failing program after a pause, cleans up its listeners, safe state after minutes of errors | - |
 
 ### Monitor Screen
 

@@ -1,6 +1,6 @@
 return {
   name = "recovery",
-  version = "1.0.0",
+  version = "1.1.0",
   description = "Restarts a failing program after a pause, cleans up its listeners, safe state after minutes of errors",
   requires = {},
   components = {},
