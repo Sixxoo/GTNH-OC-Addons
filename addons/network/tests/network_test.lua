@@ -1,0 +1,36 @@
+local oc = require("testkit.oc")
+local t = require("testkit.test")
+oc.install()
+
+local addons = require("addons.core")
+local network = addons.load("network", {port = 4711, timeoutSeconds = 2})
+local me, sent = oc.modem()
+local base = oc.leftovers()
+
+t.test("serialize and read back, no code runs", function ()
+  local text = network.serialize({a = 1, b = {"x", true}, [3] = 2.5})
+  local back = network.deserialize(text)
+  t.equal(back.a, 1) t.equal(back.b[1], "x") t.equal(back[3], 2.5)
+  t.equal(network.deserialize("os.exit()"), nil)
+end)
+
+t.test("handlers get messages, request gets the answer", function ()
+  network.open()
+  local got
+  network.on("hello", function (data, from) got = {data = data, from = from} end)
+  network.on("ping", function (data) return {pong = data.n + 1} end)
+  network.broadcast("hello", {text = "hi"})
+  t.equal(got.data.text, "hi") t.equal(got.from, me)
+  local answer, from = network.request(me, "ping", {n = 41})
+  t.equal(answer.pong, 42) t.equal(from, me)
+  t.equal(sent[1].to, nil) t.equal(sent[1].port, 4711)
+end)
+
+t.test("no answer: timeout; close cleans up", function ()
+  local answer, problem = network.request(me, "nobody", {})
+  t.equal(answer, nil) t.equal(problem, "timeout")
+  network.close()
+  t.equal(oc.leftovers(), base)
+end)
+
+return t.finish()

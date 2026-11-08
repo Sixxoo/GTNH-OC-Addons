@@ -1,0 +1,55 @@
+local oc = require("testkit.oc")
+local t = require("testkit.test")
+oc.install()
+
+local event = require("event")
+local filesystem = require("filesystem")
+local addons = require("addons.core")
+local path = os.tmpname()
+filesystem.remove(path)
+local power = addons.load("power", {lowPercent = 25, criticalPercent = 10, intervalSeconds = 10, seenFile = path})
+local logs, critical = {}, false
+event.listen("log_warning", function (_, text) logs[#logs + 1] = "W "..text end)
+event.listen("log_error", function (_, text) logs[#logs + 1] = "E "..text end)
+event.listen("power_critical", function () critical = true end)
+local base = oc.leftovers()
+
+t.test("first start: nothing to report; low and critical while draining", function ()
+  power.start()
+  t.equal(power.report(), nil)
+  oc.energy.stored = 2000
+  oc.advance(10)
+  t.contains(logs[#logs], "W [Power] Computer energy low: 20%")
+  oc.energy.stored = 900
+  oc.advance(10)
+  t.contains(logs[#logs], "E [Power] Computer energy critical: 9%")
+  t.truthy(critical)
+  local now = power.read()
+  t.truthy(now.perSecond < 0) t.truthy(now.secondsLeft ~= nil)
+end)
+
+t.test("an unexpected stop is reported at the next start", function ()
+  -- the computer went off 10 minutes ago at 9%: the file still says running
+  power.stop()
+  local clock = addons.load("clock")
+  local file = io.open(path, "w")
+  file:write(string.format("%d 0.090 running\n", clock.now() - 600)) file:close()
+  power.setup({lowPercent = 25, criticalPercent = 10, intervalSeconds = 10, seenFile = path})
+  oc.energy.stored = 10000
+  power.start()
+  local report = power.report()
+  t.truthy(report ~= nil)
+  t.equal(report.offSeconds, 600)
+  t.contains(report.text, "out of power")
+  t.contains(logs[#logs - 1] .. logs[#logs], "stopped unexpectedly")
+end)
+
+t.test("a clean stop reports nothing next time", function ()
+  power.stop()
+  t.equal(oc.leftovers(), base)
+  power.setup({lowPercent = 25, criticalPercent = 10, intervalSeconds = 10, seenFile = path})
+  t.equal(power.lastStop(), nil)
+end)
+
+filesystem.remove(path)
+return t.finish()

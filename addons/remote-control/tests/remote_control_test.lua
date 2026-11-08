@@ -1,0 +1,30 @@
+local oc = require("testkit.oc")
+local t = require("testkit.test")
+oc.install()
+
+local addons = require("addons.core")
+local me = oc.modem()
+local remote = addons.load("remote-control", {allowFrom = {}})
+
+remote.command("status", function () return {plant = "running"} end, "What the plant does")
+remote.command("fail", function () error("broken") end)
+
+t.test("nobody is allowed by default", function ()
+  remote.start()
+  local answer, problem = remote.call(me, "status")
+  t.equal(answer, nil) t.equal(problem, "not allowed")
+end)
+
+t.test("allowed computers run commands and see help", function ()
+  remote.setup({allowFrom = {me:sub(1, 6)}})
+  remote.command("status", function (args) return {plant = "running", asked = args.what} end, "What the plant does")
+  remote.start()
+  local answer = remote.call(me, "status", {what = "all"})
+  t.equal(answer.plant, "running") t.equal(answer.asked, "all")
+  t.equal(remote.help(me).status, "What the plant does")
+  local none, problem = remote.call(me, "nothing")
+  t.equal(none, nil) t.contains(problem, "no command")
+  remote.stop()
+end)
+
+return t.finish()

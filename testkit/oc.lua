@@ -138,15 +138,27 @@ function event.pull(timeout, name, ...)
     name, timeout = timeout, nil
   end
 
-  for index, signal in ipairs(queue) do
-    if name == nil or tostring(signal[1]):match(name) then
-      table.remove(queue, index)
-      return table.unpack(signal, 1, signal.n)
+  local function take()
+    for index, signal in ipairs(queue) do
+      if name == nil or tostring(signal[1]):match(name) then
+        table.remove(queue, index)
+        return signal
+      end
     end
   end
 
-  if timeout ~= nil then
-    oc.advance(timeout)
+  -- Like OpenOS: wait until a matching signal comes (timers run meanwhile), at most timeout
+  local signal, left = take(), timeout or 0
+
+  while signal == nil and left > 0 do
+    local step = math.min(1, left)
+    oc.advance(step)
+    left = left - step
+    signal = take()
+  end
+
+  if signal ~= nil then
+    return table.unpack(signal, 1, signal.n)
   end
 
   return nil
@@ -157,15 +169,26 @@ function event.pullFiltered(timeout, filter)
     filter, timeout = timeout, nil
   end
 
-  for index, signal in ipairs(queue) do
-    if filter == nil or filter(table.unpack(signal, 1, signal.n)) then
-      table.remove(queue, index)
-      return table.unpack(signal, 1, signal.n)
+  local function take()
+    for index, signal in ipairs(queue) do
+      if filter == nil or filter(table.unpack(signal, 1, signal.n)) then
+        table.remove(queue, index)
+        return signal
+      end
     end
   end
 
-  if timeout ~= nil then
-    oc.advance(timeout)
+  local signal, left = take(), timeout or 0
+
+  while signal == nil and left > 0 do
+    local step = math.min(1, left)
+    oc.advance(step)
+    left = left - step
+    signal = take()
+  end
+
+  if signal ~= nil then
+    return table.unpack(signal, 1, signal.n)
   end
 
   return nil
@@ -701,6 +724,35 @@ function oc.meNetwork(net, kind, address)
   }
 
   return oc.addComponent(kind or "me_interface", proxy, address), net
+end
+
+---A network card that hears its own messages (one test computer plays both ends). Every send and
+---broadcast arrives as a modem_message from this card; sent lists them
+function oc.modem(address)
+  local sent, open = {}, {}
+  local self
+
+  local function deliver(to, port, ...)
+    table.insert(sent, {to = to, port = port, table.pack(...)})
+
+    if open[port] then
+      event.push("modem_message", self, self, port, 0, ...)
+    end
+
+    return true
+  end
+
+  local proxy = {
+    open = function (port) open[port] = true return true end,
+    close = function (port) open[port] = nil return true end,
+    isOpen = function (port) return open[port] == true end,
+    send = function (to, port, ...) return deliver(to, port, ...) end,
+    broadcast = function (port, ...) return deliver(nil, port, ...) end,
+    isWireless = function () return false end,
+  }
+
+  self = oc.addComponent("modem", proxy, address)
+  return self, sent
 end
 
 -- ---------- the rest of OpenOS ----------
