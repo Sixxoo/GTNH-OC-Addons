@@ -17,19 +17,14 @@ Loading, installing, settings, starting, staying up.
 | [autostart](addons/autostart) | 1.0.0 | Starts a program when the computer boots, and wakes the computer by redstone after a power loss | - |
 | [recovery](addons/recovery) | 1.0.0 | Restarts a failing program after a pause, cleans up its listeners, safe state after minutes of errors | - |
 
-### Screen
+### Monitor Screen
 
-The neon look and drawing it.
+The neon look, drawing it, time and the event log on the screen.
 
 | Addon | Version | What it does | Needs |
 |---|---|---|---|
 | [neon-ui](addons/neon-ui) | 1.0.0 | Neon style building blocks: canvas, cards, bars with a slider, rows, header, footer, log | - |
 | [screen](addons/screen) | 1.0.0 | Shows frames of coloured lines without flicker, fits the resolution to the screen's shape | - |
-
-### Time and logs
-
-| Addon | Version | What it does | Needs |
-|---|---|---|---|
 | [clock](addons/clock) | 1.0.0 | Real time with a time zone (not game time), cheap to call often | - |
 | [event-log](addons/event-log) | 1.0.0 | Log for the screen (coloured, newest first, repeats folded) and a file that rotates | core@1.1, clock@1 |
 
