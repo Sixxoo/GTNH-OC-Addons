@@ -25,6 +25,7 @@ The neon look, drawing it, time and the event log on the screen.
 |---|---|---|---|
 | [neon-ui](addons/neon-ui) | 1.0.0 | Neon style building blocks: canvas, cards, bars with a slider, rows, header, footer, log | - |
 | [screen](addons/screen) | 1.0.0 | Shows frames of coloured lines without flicker, fits the resolution to the screen's shape | - |
+| [tabs](addons/tabs) | 1.0.0 | Pages on one screen: a neon tab row, switched with Tab, arrows, number keys or a touch | neon-ui 1.0.0 |
 | [clock](addons/clock) | 1.1.0 | Real time with a time zone (not game time), cheap to call often | - |
 | [event-log](addons/event-log) | 1.0.0 | Log for the screen (coloured, newest first, repeats folded) and a file that rotates | core 1.1.0, clock 1.1.0 |
 
@@ -49,6 +50,14 @@ Stock, crafting and storage of the ME network.
 | [craft-history](addons/craft-history) | 1.0.0 | Keeps finished crafting jobs (from cpu-monitor) in a file: recent jobs and totals per item | cpu-monitor 1.0.0, clock 1.1.0 |
 | [me-capacity](addons/me-capacity) | 1.0.0 | Free space on the storage cells in ME Drives (bytes and types), read by transposers next to the drives | - |
 | [ore-yield](addons/ore-yield) | 1.0.0 | How fast items come into the ME network per hour, e.g. ores from miners, void miners or a meteor | ae2 1.0.0, clock 1.1.0 |
+
+### Data
+
+Statistics and history that survive restarts.
+
+| Addon | Version | What it does | Needs |
+|---|---|---|---|
+| [stats](addons/stats) | 1.0.0 | Counters and readings kept per hour in a file: totals, per hour, last 24 hours, min/max/average, uptime | clock 1.1.0 |
 <!-- catalog:end -->
 
 Written by `python3 tools/catalog.py` from each `addon.lua` and [groups.lua](groups.lua).

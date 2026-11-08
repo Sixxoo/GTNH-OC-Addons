@@ -745,13 +745,16 @@ function unicode.charWidth()
   return 1
 end
 
+---The computer's own energy buffer; tests change stored and max
+oc.energy = {stored = 10000, max = 10000}
+
 local computer = {
   uptime = function () return clock end,
   address = function () return "00000000-computer" end,
   freeMemory = function () return 1024 * 1024 end,
   totalMemory = function () return 2 * 1024 * 1024 end,
-  energy = function () return 10000 end,
-  maxEnergy = function () return 10000 end,
+  energy = function () return oc.energy.stored end,
+  maxEnergy = function () return oc.energy.max end,
   pushSignal = function (...) return event.push(...) end,
   beep = function () end,
 }
@@ -772,8 +775,11 @@ local term = {
 }
 
 local keyboard = {keys = setmetatable({
-  q = 16, e = 18, y = 21, n = 49, up = 200, down = 208, left = 203, right = 205, enter = 28, space = 57,
+  q = 16, e = 18, y = 21, n = 49, up = 200, down = 208, left = 203, right = 205, enter = 28, space = 57, tab = 15,
 }, {__index = function (_, key) return key end})}
+
+---Tests set oc.shift = true to hold Shift
+keyboard.isShiftDown = function () return oc.shift == true end
 
 -- filesystem on the real disk of the test machine; lastModified gives the fake real clock,
 -- like OpenComputers does for a file just written
