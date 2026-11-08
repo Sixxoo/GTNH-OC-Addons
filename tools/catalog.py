@@ -14,12 +14,40 @@ START = "<!-- catalog:start -->"
 END = "<!-- catalog:end -->"
 
 
+def read_groups(repo):
+    """groups.lua: [{name, description, addons}]"""
+    from check_addons import read_table, to_python
+    path = os.path.join(repo, "groups.lua")
+    result = read_table(open(path, encoding="utf-8").read(), "groups.lua")
+    value = result[0] if isinstance(result, tuple) else result
+    if value is None:
+        raise SystemExit(f"groups.lua can't be read: {result[1] if isinstance(result, tuple) else ''}")
+    return to_python(value)
+
+
 def catalog(repo):
-    rows = ["| Addon | Version | What it does | Needs |", "|---|---|---|---|"]
-    for name, info in sorted(read_addons(repo).items()):
-        needs = ", ".join(info.get("requires") or []) or "-"
-        rows.append(f"| [{name}](addons/{name}) | {info.get('version', '?')} | {info.get('description', '')} | {needs} |")
-    return "\n".join(rows)
+    addons = read_addons(repo)
+    groups = read_groups(repo)
+    placed = {name for group in groups for name in group.get("addons", [])}
+    missing = sorted(set(addons) - placed)
+    if missing:
+        groups = groups + [{"name": "Other", "addons": missing}]
+
+    parts = []
+    for group in groups:
+        names = [name for name in group.get("addons", []) if name in addons]
+        if not names:
+            continue
+        title = f"### {group['name']}"
+        if group.get("description"):
+            title += f"\n\n{group['description']}."
+        rows = ["| Addon | Version | What it does | Needs |", "|---|---|---|---|"]
+        for name in names:
+            info = addons[name]
+            needs = ", ".join(info.get("requires") or []) or "-"
+            rows.append(f"| [{name}](addons/{name}) | {info.get('version', '?')} | {info.get('description', '')} | {needs} |")
+        parts.append(title + "\n\n" + "\n".join(rows))
+    return "\n\n".join(parts)
 
 
 def updated_readme(repo):

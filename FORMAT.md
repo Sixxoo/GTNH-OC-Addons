@@ -123,6 +123,11 @@ a program uses the first time, and later only for new ones.
 Sections, in this order: what it does (a sentence or two), **Usage** (a short example), **Settings** (table of
 `settings`), **Components**, **Changelog** (newest first: version, date, one line per change).
 
+## Catalog groups
+
+Every addon is in one group of [groups.lua](groups.lua); the catalog in README.md is written group by group.
+The check fails for an addon without a group.
+
 ## Releases
 
 Raise `version` in `addon.lua`, add the changelog line to the addon's README and push to `main`. When the checks and

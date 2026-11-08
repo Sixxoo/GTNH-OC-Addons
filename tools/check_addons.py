@@ -150,6 +150,24 @@ def check(repo):
                 problems.append(f"{name}: requires {requirement}, but {other} is {infos[other]['version']}")
             graph[name].append(other)
 
+    # Every addon is in one group of groups.lua (for the catalog)
+    groups_path = os.path.join(repo, "groups.lua")
+    if os.path.isfile(groups_path):
+        result = read_table(open(groups_path, encoding="utf-8").read(), "groups.lua")
+        value = result[0] if isinstance(result, tuple) else result
+        groups = to_python(value) if value is not None else []
+        seen = {}
+        for group in groups if isinstance(groups, list) else []:
+            for name in group.get("addons", []):
+                if name in seen:
+                    problems.append(f"{name}: in two groups of groups.lua")
+                seen[name] = True
+                if name not in infos:
+                    problems.append(f"groups.lua: {name} is not an addon")
+        for name in infos:
+            if name not in seen:
+                problems.append(f"{name}: not in any group of groups.lua")
+
     def visit(name, path):
         if name in path:
             problems.append("loop between addons: " + " -> ".join(path[path.index(name):] + [name]))
