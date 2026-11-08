@@ -36,6 +36,19 @@ GregTech machines and transposers.
 |---|---|---|---|
 | [gt-machine](addons/gt-machine) | 1.0.0 | GregTech machines: find by name, state, switch on and off, sensor values by key | - |
 | [transposer](addons/transposer) | 1.0.0 | Finds fluids and items around a transposer and moves them into a hatch on any side | - |
+
+### ME System features
+
+Stock, crafting and storage of the ME network.
+
+| Addon | Version | What it does | Needs |
+|---|---|---|---|
+| [ae2](addons/ae2) | 1.0.0 | ME network: find it, read items and fluids by one key, power, CPUs, cached craftables, requests | - |
+| [stock-watch](addons/stock-watch) | 1.0.0 | Watches items and fluids in the ME network against a minimum and maximum, logs when one runs low | ae2@1 |
+| [cpu-monitor](addons/cpu-monitor) | 1.0.0 | Crafting CPUs of the ME network: busy or free, what each crafts and for how long, logs jobs | ae2@1 |
+| [craft-history](addons/craft-history) | 1.0.0 | Keeps finished crafting jobs (from cpu-monitor) in a file: recent jobs and totals per item | cpu-monitor@1, clock@1.1 |
+| [me-capacity](addons/me-capacity) | 1.0.0 | Free space on the storage cells in ME Drives (bytes and types), read by transposers next to the drives | - |
+| [ore-yield](addons/ore-yield) | 1.0.0 | How fast items come into the ME network per hour, e.g. ores from miners, void miners or a meteor | ae2@1, clock@1.1 |
 <!-- catalog:end -->
 
 Written by `python3 tools/catalog.py` from each `addon.lua` and [groups.lua](groups.lua).

@@ -532,7 +532,10 @@ function oc.transposer(tanks, items, address)
 
         for _, stack in ipairs(items[side]) do
           if (stack.size or 0) > 0 then
-            all[stack.slot - 1] = {label = stack.label, size = stack.size, name = stack.name or stack.label}
+            local c = {}
+          for k, v in pairs(stack) do if k ~= "slot" then c[k] = v end end
+          c.name = c.name or c.label
+          all[stack.slot - 1] = c
           end
         end
 
@@ -545,7 +548,10 @@ function oc.transposer(tanks, items, address)
     getStackInSlot = function (side, slot)
       for _, stack in ipairs(items[side] or {}) do
         if stack.slot == slot then
-          return {label = stack.label, size = stack.size, name = stack.name or stack.label}
+          local c = {}
+          for k, v in pairs(stack) do if k ~= "slot" then c[k] = v end end
+          c.name = c.name or c.label
+          return c
         end
       end
 
@@ -599,6 +605,102 @@ function oc.meInterface(fluids, items, address)
   }
 
   return oc.addComponent("me_interface", proxy, address), {fluids = fluids, items = items}
+end
+
+---A fuller ME network for the ME addons. net (changed by the test as it goes):
+---  items  = {{name, damage, label, size, craftable}}, fluids = {{name, label, amount}}
+---  cpus   = {{name, storage, coprocessors, busy, output = {name, label, size}, active = n}}
+---  power  = {stored, max, usage, injection, idle}
+---Requests land in net.jobs as {spec, amount, cpu, state = "computing"}; set state to "running",
+---"done", "failed" or "canceled". net.calls counts reads by method name
+function oc.meNetwork(net, kind, address)
+  net = net or {}
+  net.items, net.fluids, net.cpus = net.items or {}, net.fluids or {}, net.cpus or {}
+  net.power, net.jobs, net.calls = net.power or {}, net.jobs or {}, net.calls or {}
+
+  local function count(name)
+    net.calls[name] = (net.calls[name] or 0) + 1
+  end
+
+  local function fits(stack, filter)
+    if filter == nil then return true end
+    for field, value in pairs(filter) do
+      if field ~= "damage" or stack.damage ~= nil then
+        if stack[field] ~= value then return false end
+      end
+    end
+    return true
+  end
+
+  local function copy(stack)
+    local c = {}
+    for k, v in pairs(stack) do c[k] = v end
+    return c
+  end
+
+  local proxy = {
+    getItemsInNetwork = function (filter)
+      count("getItemsInNetwork")
+      local list = {}
+      for _, stack in ipairs(net.items) do
+        if fits(stack, filter) then
+          local c = copy(stack)
+          c.damage, c.isCraftable, c.craftable = c.damage or 0, stack.craftable == true, nil
+          list[#list + 1] = c
+        end
+      end
+      return list
+    end,
+    getFluidsInNetwork = function ()
+      count("getFluidsInNetwork")
+      local list = {}
+      for _, fluid in ipairs(net.fluids) do list[#list + 1] = copy(fluid) end
+      return list
+    end,
+    getCraftables = function (filter)
+      count("getCraftables")
+      local list = {}
+      for _, stack in ipairs(net.items) do
+        if stack.craftable and fits(stack, filter) then
+          list[#list + 1] = {
+            getStack = function () local c = copy(stack) c.damage = c.damage or 0 return c end,
+            request = function (amount, _, cpu)
+              local job = {spec = stack, amount = amount or 1, cpu = cpu, state = "computing"}
+              table.insert(net.jobs, job)
+              return {
+                isComputing = function () return job.state == "computing" end,
+                isDone = function () return job.state == "done" end,
+                isCanceled = function () return job.state == "canceled" end,
+                hasFailed = function () return job.state == "failed", job.why end,
+              }
+            end,
+          }
+        end
+      end
+      return list
+    end,
+    getCpus = function ()
+      count("getCpus")
+      local list = {}
+      for _, cpu in ipairs(net.cpus) do
+        list[#list + 1] = {name = cpu.name, storage = cpu.storage or 65536, coprocessors = cpu.coprocessors or 0,
+          busy = cpu.busy == true, cpu = {
+            isBusy = function () return cpu.busy == true end,
+            finalOutput = function () return cpu.busy and cpu.output or nil end,
+            activeItems = function () local a = {} for i = 1, cpu.active or 0 do a[i] = {size = 1} end return a end,
+            cancel = function () cpu.busy = false return true end,
+          }}
+      end
+      return list
+    end,
+    getStoredPower = function () return net.power.stored or 0 end,
+    getMaxStoredPower = function () return net.power.max or 0 end,
+    getAvgPowerUsage = function () return net.power.usage or 0 end,
+    getAvgPowerInjection = function () return net.power.injection or 0 end,
+    getIdlePowerUsage = function () return net.power.idle or 0 end,
+  }
+
+  return oc.addComponent(kind or "me_interface", proxy, address), net
 end
 
 -- ---------- the rest of OpenOS ----------

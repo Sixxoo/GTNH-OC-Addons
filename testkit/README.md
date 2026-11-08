@@ -32,7 +32,7 @@ return t.finish()
 ```
 
 Checks: `t.equal`, `t.truthy`, `t.falsy`, `t.contains`, `t.errors`. Time: `os.sleep(s)` or `oc.advance(s)` runs timers.
-Fakes: `oc.gtMachine`, `oc.transposer`, `oc.meInterface`, `oc.addScreen`, `oc.addComponent` for anything else.
+Fakes: `oc.gtMachine`, `oc.transposer`, `oc.meInterface`, `oc.meNetwork` (items, fluids, CPUs, power, crafting jobs), `oc.addScreen`, `oc.addComponent` for anything else.
 
 ## Copied from OpenComputers on purpose
 
