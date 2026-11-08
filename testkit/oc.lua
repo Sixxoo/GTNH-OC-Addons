@@ -652,6 +652,50 @@ local keyboard = {keys = setmetatable({
   q = 16, e = 18, y = 21, n = 49, up = 200, down = 208, left = 203, right = 205, enter = 28, space = 57,
 }, {__index = function (_, key) return key end})}
 
+-- filesystem on the real disk of the test machine; lastModified gives the fake real clock,
+-- like OpenComputers does for a file just written
+local filesystem = {}
+
+function filesystem.exists(path)
+  local file = io.open(path, "r")
+  if file then file:close() return true end
+  return os.execute('test -e "'..path..'"') == true
+end
+
+function filesystem.isDirectory(path)
+  return os.execute('test -d "'..path..'"') == true
+end
+
+function filesystem.makeDirectory(path)
+  return os.execute('mkdir -p "'..path..'"') == true
+end
+
+function filesystem.remove(path)
+  return os.execute('rm -rf "'..path..'"') == true
+end
+
+function filesystem.rename(from, to)
+  return os.rename(from, to) == true
+end
+
+function filesystem.copy(from, to)
+  return os.execute('cp "'..from..'" "'..to..'"') == true
+end
+
+function filesystem.size(path)
+  local file = io.open(path, "r")
+  if file == nil then return 0 end
+  local size = file:seek("end")
+  file:close()
+  return size
+end
+
+function filesystem.lastModified()
+  return realClockMs
+end
+
+oc.filesystem = filesystem
+
 ---Put the fake OpenOS into package.loaded. Call once at the start of a test file
 function oc.install()
   package.loaded.event = event
@@ -660,6 +704,7 @@ function oc.install()
   package.loaded.sides = sides
   package.loaded.unicode = unicode
   package.loaded.term = term
+  package.loaded.filesystem = filesystem
   package.loaded.keyboard = keyboard
   package.loaded.shell = {execute = function () return true end, setWorkingDirectory = function () end,
     getWorkingDirectory = function () return "/home" end}

@@ -7,7 +7,9 @@ Shared parts for my OpenComputers programs in GTNH 2.9. Each program picks the a
 <!-- catalog:start -->
 | Addon | Version | What it does | Needs |
 |---|---|---|---|
+| [clock](addons/clock) | 1.0.0 | Real time with a time zone (not game time), cheap to call often | - |
 | [core](addons/core) | 1.0.0 | Loads addons with their settings from addon.lua, /home/addons.cfg and the program | - |
+| [event-log](addons/event-log) | 1.0.0 | Log for the screen (coloured, newest first, repeats folded) and a file that rotates | clock@1 |
 | [neon-ui](addons/neon-ui) | 1.0.0 | Neon style building blocks: canvas, cards, bars with a slider, rows, header, footer, log | - |
 | [screen](addons/screen) | 1.0.0 | Shows frames of coloured lines without flicker, fits the resolution to the screen's shape | - |
 <!-- catalog:end -->
