@@ -29,4 +29,5 @@ None.
 
 ## Changelog
 
+- 1.1.0 (2026-11-08): the installer asks for the time zone once.
 - 1.0.0 (2026-11-08): first version, from Water Line Control.

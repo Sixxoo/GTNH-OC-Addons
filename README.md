@@ -25,7 +25,7 @@ The neon look, drawing it, time and the event log on the screen.
 |---|---|---|---|
 | [neon-ui](addons/neon-ui) | 1.0.0 | Neon style building blocks: canvas, cards, bars with a slider, rows, header, footer, log | - |
 | [screen](addons/screen) | 1.0.0 | Shows frames of coloured lines without flicker, fits the resolution to the screen's shape | - |
-| [clock](addons/clock) | 1.0.0 | Real time with a time zone (not game time), cheap to call often | - |
+| [clock](addons/clock) | 1.1.0 | Real time with a time zone (not game time), cheap to call often | - |
 | [event-log](addons/event-log) | 1.0.0 | Log for the screen (coloured, newest first, repeats folded) and a file that rotates | core@1.1, clock@1 |
 
 ### Machines

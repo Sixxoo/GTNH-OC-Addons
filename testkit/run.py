@@ -36,6 +36,8 @@ def find_tests(root, paths):
 
 
 def run_file(path, root):
+    # Relative paths in a program (config.lua, logs.log) are relative to its folder, like in OC after cd
+    os.chdir(root)
     lua = lua53.LuaRuntime(unpack_returned_tuples=True)
     search = ";".join([
         f"{root}/?.lua", f"{root}/?/init.lua",
