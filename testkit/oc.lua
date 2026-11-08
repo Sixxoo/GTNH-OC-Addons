@@ -193,7 +193,8 @@ local component = {}
 ---@param address? string
 ---@return string address
 function oc.addComponent(kind, proxy, address)
-  address = address or string.format("%08x-0000-4000-8000-%012x", nextId, nextId)
+  -- Spread the first characters, so a short prefix finds one component, like real random addresses
+  address = address or string.format("%08x-0000-4000-8000-%012x", (nextId * 2654435761) % 4294967296, nextId)
   nextId = nextId + 1
   proxy.address = address
   proxy.type = kind
