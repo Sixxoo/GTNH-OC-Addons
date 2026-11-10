@@ -45,6 +45,8 @@ local result, problem = recovery.run({
 |---|---|---|
 | `retrySeconds` | `30` | Pause before starting again |
 | `giveUpMinutes` | `5` | Minutes of failing in a row before the safe state |
+| `keepTrying` | `false` | After giving up, keep the safe state but go on trying every `keepTryingSeconds` (for computers nobody watches, e.g. machines in chunks that unload) |
+| `keepTryingSeconds` | `60` | Seconds between tries after giving up |
 | `healthySeconds` | `60` | A run this long counts as working; the next error starts a fresh count |
 
 ## Components
@@ -53,6 +55,7 @@ None.
 
 ## Changelog
 
+- 1.3.0 (2026-11-10): `keepTrying`: after giving up the program stays in the safe state but goes on trying, and runs again by itself once the problem is gone. `waiting` gets `isSafe`.
 - 1.2.0 (2026-11-08): `waiting` gets the whole error (all its lines, without the stack traceback), not only its first line.
 - 1.1.0 (2026-11-08): `step` can return `"restart"`: the run stops and starts again at once, without counting as an error.
 - 1.0.0 (2026-11-08): first version, from Water Line Control's program controller.

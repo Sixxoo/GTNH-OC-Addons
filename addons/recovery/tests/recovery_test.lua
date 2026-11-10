@@ -126,4 +126,24 @@ t.test("waiting can quit before the restart", function ()
   t.equal(result, "quit")
 end)
 
+t.test("keepTrying: safe once, goes on trying, runs again when the problem is gone", function ()
+  recovery.setup({retrySeconds = 30, giveUpMinutes = 5, healthySeconds = 60, keepTrying = true, keepTryingSeconds = 60})
+  local safeCalls, starts, sawSafe, began = 0, 0, false, oc.now()
+  local result = recovery.run({
+    start = function ()
+      starts = starts + 1
+      if oc.now() - began < 20 * 60 then error("no such component") end   -- 20 minutes offline
+    end,
+    step = function () os.sleep(1) return false end,
+    stop = function () end,
+    safe = function () safeCalls = safeCalls + 1 end,
+    waiting = function (_, _, _, _, isSafe) if isSafe then sawSafe = true end end,
+  })
+  t.equal(result, "quit")
+  t.equal(safeCalls, 1)
+  t.truthy(sawSafe)
+  t.truthy(oc.now() - began >= 20 * 60)
+  recovery.setup({retrySeconds = 30, giveUpMinutes = 5, healthySeconds = 60})
+end)
+
 return t.finish()

@@ -1,5 +1,6 @@
 -- Keeps a program running through errors: a failing run is stopped and cleaned up, then started again
--- after a pause; if it keeps failing for minutes, the program goes to a safe state and stops.
+-- after a pause; if it keeps failing for minutes, the program goes to a safe state and stops (or, with
+-- keepTrying, stays safe and goes on trying now and then until a run works again).
 -- Errors inside listeners and timers are caught too (OpenOS only writes them to /tmp/event.log).
 local M = {}
 
@@ -77,8 +78,9 @@ end
 ---  step(runNumber)   one pass of the main loop; return false to quit, "restart" to start again at once
 ---  stop(reason)      always called when a run ends: "quit", "restart", or the error
 ---  safe(problem)     after giving up: put machines in a safe state
----  waiting(problem, secondsLeft, attempt, giveUpIn)  called every second before a restart, with the error
----                    without its stack traceback; return "quit" to stop
+---  waiting(problem, secondsLeft, attempt, giveUpIn, isSafe)  called every second before a restart, with the
+---                    error without its stack traceback; return "quit" to stop. With keepTrying, after giving up
+---                    it goes on trying every keepTryingSeconds with isSafe = true (machines stay safe until a run works)
 ---  started(runNumber, attempt)  optional, after a run started again after an error
 ---@return string result "quit" or "gave up"
 ---@return string|nil problem The last error when it gave up
@@ -86,6 +88,7 @@ function M.run(handlers)
   local computer = require("computer")
   local failingSince = nil
   local attempt = 0
+  local isSafe = false
 
   while true do
     run = run + 1
@@ -135,28 +138,38 @@ function M.run(handlers)
     local now = computer.uptime()
 
     if now - startedAt >= M.settings.healthySeconds then
-      failingSince, attempt = nil, 0   -- it ran well for a while: a fresh failure
+      failingSince, attempt, isSafe = nil, 0, false   -- it ran well for a while: a fresh failure
     end
 
     failingSince = failingSince or startedAt
     attempt = attempt + 1
     local giveUpAt = failingSince + M.settings.giveUpMinutes * 60
+    local pause = M.settings.retrySeconds
 
     if now >= giveUpAt then
-      pcall(handlers.safe, failure)
-      return "gave up", failure
+      if not isSafe then
+        pcall(handlers.safe, failure)
+        isSafe = true
+      end
+
+      if not M.settings.keepTrying then
+        return "gave up", failure
+      end
+
+      pause = M.settings.keepTryingSeconds
     end
 
-    for left = M.settings.retrySeconds, 1, -1 do
+    for left = pause, 1, -1 do
       local answer = nil
 
       if handlers.waiting then
-        local waitOk, result = pcall(handlers.waiting, withoutTraceback(failure), left, attempt, math.max(0, giveUpAt - computer.uptime()))
+        local waitOk, result = pcall(handlers.waiting, withoutTraceback(failure), left, attempt,
+          math.max(0, giveUpAt - computer.uptime()), isSafe)
         answer = waitOk and result or nil
       end
 
       if answer == "quit" then
-        pcall(handlers.safe, failure)
+        if not isSafe then pcall(handlers.safe, failure) end
         return "quit", failure
       end
 
