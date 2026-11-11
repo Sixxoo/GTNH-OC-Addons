@@ -20,6 +20,21 @@ function M.print(line)
   print(line)
 end
 
+---Write without a new line (the start of a step whose result follows)
+function M.write(text)
+  io.write(text)
+end
+
+---A step of an install: "  [2/4] Unpacking... " now, its result (done(text)) when it finished, so the
+---player sees what is going on while the computer works
+local function step(index, total, text)
+  M.write("  ["..index.."/"..total.."] "..text.."... ")
+end
+
+local function done(text)
+  M.print(text or "ok")
+end
+
 ---Yes/no question; Enter alone is the default
 function M.ask(question, default)
   io.write(question..(default and " [Y/n] " or " [y/N] "))
@@ -360,23 +375,35 @@ function M.install(program, version)
   local url = "https://github.com/"..program.repository.."/releases/download/v"..version.."/"..program.archive
 
   filesystem.makeDirectory(folder)
+  M.print("Installing "..program.name.." "..version.."...")
+
+  step(1, 4, "Downloading "..program.archive)
 
   if not M.download(url, archive) then
     filesystem.remove(archive)
+    done("failed")
     return false, {"Could not download "..url}
   end
 
+  done(math.max(1, math.floor(filesystem.size(archive) / 1024 + 0.5)).." KB")
+
   local oldConfig = read(folder.."/"..(program.config or "config.lua"))
+  step(2, 4, "Unpacking")
   M.extract(archive, folder)
   filesystem.remove(archive)
+  done()
 
   -- A download that stopped early unpacks only part of the files
+  step(3, 4, "Checking the files")
   local installed = readTable(read(folder.."/program.lua"), "program.lua")
 
   if installed == nil or installed.version ~= version then
+    done("incomplete")
     return false, {"The download was incomplete, so some files are missing or cut off. Run it again."}
   end
 
+  done()
+  M.print("  [4/4] Keeping your settings")
   return true, M.finish(installed, oldConfig)
 end
 

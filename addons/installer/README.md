@@ -55,4 +55,5 @@ None.
 
 ## Changelog
 
+- 1.1.0 (2026-11-11): `install` shows its steps as it goes (downloading with the size, unpacking, checking, settings), so an update doesn't look stuck. `write(text)` can be replaced like `print`.
 - 1.0.0 (2026-11-08): first version, from Water Line Control's setup and updater.

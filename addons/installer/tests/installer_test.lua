@@ -99,8 +99,18 @@ t.test("install downloads, unpacks and finishes; an incomplete download is repor
   end
   installer.extract = function (archive, target) os.execute('cd "'..target..'" && tar -xf "'..archive..'"') end
 
+  local shown = {}
+  local print, write = installer.print, installer.write
+  installer.print = function (line) shown[#shown + 1] = line.."\n" end
+  installer.write = function (text) shown[#shown + 1] = text end
   local isOk, lines = installer.install(program, "1.2.0")
+  installer.print, installer.write = print, write
   t.truthy(isOk, table.concat(lines, "\n"))
+  local output = table.concat(shown)
+  t.contains(output, "Installing Demo 1.2.0...")
+  t.contains(output, "[1/4] Downloading Demo.tar... ")
+  t.contains(output, "[2/4] Unpacking... ok")
+  t.contains(output, "[3/4] Checking the files... ok")
   t.contains(urls[1], "/releases/download/v1.2.0/Demo.tar")
   t.contains(read(folder.."/config.lua"), "limit = 99,", "player's value kept")
   t.equal(installer.registry().demo.version, "1.2.0")
